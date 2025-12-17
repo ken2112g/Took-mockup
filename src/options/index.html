@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remake - Agent & Workflow Configuration</title>
+
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="../../dist/styles.css">
+
+    <!-- External Libraries -->
+    <script src="../../lib/fabric.min.js"></script>
+
+    <!-- Load all required JavaScript files in order -->
+    <!-- Config -->
+    <script src="../config/constants.js"></script>
+
+    <!-- Utilities -->
+    <script src="../utils/shadowDOMHelper.js"></script>
+    <script src="../utils/themeUtils.js"></script>
+    <script src="../utils/imageUtils.js"></script>
+    <script src="../utils/configStorage.js"></script>
+    <script src="../utils/apiAdapters.js"></script>
+    <script src="../utils/mockupSetStorage.js"></script>
+    <script src="../utils/imageComposer.js"></script>
+    <script src="../utils/mockupExecutor.js"></script>
+
+    <!-- AI Services for Text-to-Text -->
+    <script src="../services/ai/BaseTextService.js"></script>
+    <script src="../services/ai/ChatGPTService.js"></script>
+    <script src="../services/ai/GrokService.js"></script>
+    <script src="../services/ai/GeminiTextService.js"></script>
+
+    <!-- Models -->
+    <script src="../models/Agent.js"></script>
+    <script src="../models/Workflow.js"></script>
+
+    <!-- Base Components -->
+    <script src="../components/base/Button.js"></script>
+    <script src="../components/base/ModalHeader.js"></script>
+    <script src="../components/base/ModalBody.js"></script>
+    <script src="../components/base/ModalFooter.js"></script>
+    <script src="../components/base/Modal.js"></script>
+
+    <!-- UI Components -->
+    <script src="../components/ui/AgentCard.js"></script>
+    <script src="../components/ui/AgentEditor.js"></script>
+    <script src="../components/ui/AgentLibrary.js"></script>
+    <script src="../components/ui/MockupSetCard.js"></script>
+    <script src="../components/ui/MockupSetManager.js"></script>
+    <script src="../components/ui/ConfigModal.js"></script>
+
+    <!-- Workflow Components -->
+    <script src="../components/ui/workflow/WorkflowNode.js"></script>
+    <script src="../components/ui/workflow/WorkflowNodeOptions.js"></script>
+    <script src="../components/ui/workflow/ConnectionLine.js"></script>
+    <script src="../components/ui/workflow/ConnectionLineOptions.js"></script>
+    <script src="../components/ui/WorkflowCanvas.js"></script>
+
+    <!-- Options Page Script -->
+    <script src="options.js" defer></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-background);
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        .options-header {
+            background-color: var(--color-surface);
+            border-bottom: 1px solid var(--color-border);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: var(--z-sticky);
+        }
+
+        .options-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .options-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .config-full-layout {
+            display: flex;
+            height: 100%;
+        }
+
+        .config-full-left {
+            width: 320px;
+            min-width: 320px;
+            border-right: 1px solid var(--color-border);
+            background-color: var(--color-surface-secondary);
+        }
+
+        .config-full-center {
+            flex: 1;
+            min-width: 0;
+            background-color: var(--color-background);
+        }
+
+        .config-full-right {
+            width: 300px;
+            min-width: 300px;
+            border-left: 1px solid var(--color-border);
+            background-color: var(--color-surface-secondary);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            border-radius: var(--radius-md);
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--color-hover);
+            border-color: var(--color-border-strong);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .extension-info {
+            color: var(--color-text-muted);
+            font-size: var(--text-sm);
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 1024px) {
+            .config-full-left {
+                width: 280px;
+                min-width: 280px;
+            }
+
+            .config-full-right {
+                width: 260px;
+                min-width: 260px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .options-header {
+                padding: 1rem;
+            }
+
+            .config-full-layout {
+                flex-direction: column;
+                overflow-x: auto;
+            }
+
+            .config-full-left,
+            .config-full-center,
+            .config-full-right {
+                width: 100%;
+                min-width: 100%;
+                border: none;
+                border-bottom: 1px solid var(--color-border);
+            }
+
+            .config-full-left {
+                min-height: 40vh;
+            }
+
+            .config-full-center {
+                min-height: 50vh;
+            }
+
+            .config-full-right {
+                min-height: 30vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="options-container">
+        <!-- Header -->
+        <header class="options-header">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold" style="color: var(--color-text-primary);">
+                        🤖 Remake Configuration
+                    </h1>
+                    <p class="extension-info">
+                        Agent & Workflow Management System
+                    </p>
+                </div>
+
+                <div class="header-actions">
+                    <button id="theme-toggle" class="theme-toggle" title="Toggle theme">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="5"/>
+                            <path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/>
+                        </svg>
+                    </button>
+
+                    <button id="help-btn" class="btn btn-secondary btn-sm">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <path d="M12 17h.01"/>
+                        </svg>
+                        Help
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="options-content">
+            <!-- Tab Navigation -->
+            <div class="tab-navigation border-b" style="border-color: var(--color-border); background-color: var(--color-surface);">
+                <div class="flex px-6">
+                    <button class="tab-btn px-4 py-3 text-sm font-medium transition-colors border-b-2 border-transparent active"
+                            data-tab="workflows"
+                            style="color: var(--color-primary); border-bottom-color: var(--color-primary);">
+                        <span>Agents & Workflows</span>
+                    </button>
+                    <button class="tab-btn px-4 py-3 text-sm font-medium transition-colors border-b-2 border-transparent"
+                            data-tab="mockups"
+                            style="color: var(--color-text-muted);">
+                        <span>Mockup Sets</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content-container h-full">
+                <!-- Workflows Tab -->
+                <div id="workflows-tab" class="tab-pane h-full active">
+                    <div class="config-full-layout">
+                        <!-- Left Panel - Agent Library -->
+                        <div class="config-full-left">
+                            <div id="agent-library-container" class="h-full">
+                                <!-- Agent Library will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Center Panel - Workflow Canvas -->
+                        <div class="config-full-center">
+                            <div id="workflow-canvas-container" class="h-full">
+                                <!-- Workflow Canvas will be rendered here -->
+                            </div>
+                        </div>
+
+                        <!-- Right Panel - Properties -->
+                        <div class="config-full-right">
+                            <div id="properties-panel-container" class="h-full">
+                                <!-- Properties Panel will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mockups Tab -->
+                <div id="mockups-tab" class="tab-pane h-full hidden">
+                    <div class="p-6">
+                        <div id="mockup-set-manager-container">
+                            <!-- MockupSetManager will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-lg p-6 max-w-sm mx-4">
+            <div class="flex items-center gap-3">
+                <div class="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                <span style="color: var(--color-text-primary);">Loading configuration...</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

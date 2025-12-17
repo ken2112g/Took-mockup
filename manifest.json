@@ -1,0 +1,135 @@
+{
+  "manifest_version": 3,
+  "name": "Pixel Forge",
+  "version": "1.0.0",
+  "description": "AI-powered image creation and remixing extension by csdlmysql",
+  "author": "csdlmysql",
+
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting",
+    "contextMenus",
+    "offscreen"
+  ],
+
+  "host_permissions": [
+    "https://*/*"
+  ],
+
+  "action": {
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "32": "assets/icons/icon-32.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    },
+    "default_title": "Pixel Forge - AI Image Tool"
+  },
+
+  "background": {
+    "service_worker": "src/main/background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "src/config/constants.js",
+        "src/utils/configHelper.js",
+        "src/utils/themeUtils.js",
+        "src/utils/imageUtils.js",
+        "src/utils/configStorage.js",
+        "src/utils/executionHistoryStorage.js",
+        "src/utils/apiAdapters.js",
+        "src/utils/backgroundRemoval.js",
+        "src/utils/titleDetector.js",
+        "src/utils/workflowExecutorMain.js",
+        "src/utils/mockupSetStorage.js",
+        "src/utils/imageComposer.js",
+        "src/utils/mockupExecutor.js",
+        "src/utils/fabricLoader.js",
+        "src/utils/shadowDOMHelper.js",
+        "src/utils/modalManager.js",
+        "src/utils/imageDetectors/BaseImageDetector.js",
+        "src/utils/imageDetectors/AmazonImageDetector.js",
+        "src/utils/imageDetectors/EtsyImageDetector.js",
+        "src/utils/imageDetectors/EbayImageDetector.js",
+        "src/utils/imageDetectors/CommonImageDetector.js",
+        "src/utils/imageDetectors/ImageDetectorRegistry.js",
+        "src/services/apiService.js",
+        "src/services/ai/BaseTextService.js",
+        "src/services/ai/ChatGPTService.js",
+        "src/services/ai/GrokService.js",
+        "src/services/ai/GeminiTextService.js",
+        "src/models/Agent.js",
+        "src/models/Workflow.js",
+        "src/components/base/Button.js",
+        "src/components/base/ModalHeader.js",
+        "src/components/base/ModalBody.js",
+        "src/components/base/ModalFooter.js",
+        "src/components/base/Modal.js",
+        "src/components/ui/FloatingButton.js",
+        "src/components/ui/FloatingButtonGroup.js",
+        "src/components/ui/ImageUpload.js",
+        "src/components/ui/ImagePreview.js",
+        "src/components/ui/LoadingOverlay.js",
+        "src/components/ui/PresetCard.js",
+        "src/components/ui/ProgressBar.js",
+        "src/components/ui/AgentCard.js",
+        "src/components/ui/AgentEditor.js",
+        "src/components/ui/AgentLibrary.js",
+        "src/components/ui/MockupSetCard.js",
+        "src/components/ui/MockupSetManager.js",
+        "src/components/ui/CrawlModal.js",
+        "src/components/ui/ResultsModal.js",
+        "src/components/ui/GuideModal.js",
+        "src/components/ui/ConfigModal.js",
+        "src/components/ui/ExecutionHistoryButton.js",
+        "src/components/ui/ExecutionHistoryItem.js",
+        "src/components/ui/ExecutionHistoryPanel.js",
+        "src/components/ui/WorkflowCanvas.js",
+        "src/components/ui/WorkflowModal.js",
+        "src/components/ui/workflow/WorkflowNode.js",
+        "src/components/ui/workflow/ConnectionLine.js",
+        "src/components/layout/LeftSidebar.js",
+        "src/components/layout/main-content/UploadArea.js",
+        "src/components/layout/main-content/PromptSection.js",
+        "src/components/layout/main-content/ActionButtons.js",
+        "src/components/layout/main-content/ProcessingState.js",
+        "src/components/layout/MainContent.js",
+        "src/components/layout/RightSidebar.js",
+        "src/main/content.js"
+      ],
+      "css": ["dist/styles.css"],
+      "run_at": "document_end"
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/*",
+        "dist/*",
+        "lib/*",
+        "src/components/**/*",
+        "src/styles/**/*",
+        "src/offscreen/**/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "options_ui": {
+    "page": "src/options/index.html",
+    "open_in_tab": true
+  },
+
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  }
+}
